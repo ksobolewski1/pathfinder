@@ -4,23 +4,19 @@
 #include <stdlib.h>
 
 // Triangulation algorithm 
-struct Triangle* triangulate(int pt_count, int sw, int sh, struct Point* points, int* res_count) {
+struct Triangle* triangulate(int pt_count, int screen_width, int screen_height, struct Point* points, int* res_count) {
 
 	if (pt_count < 3) return NULL; 
 
 	int tr_arr_size = pt_count * 3;
 	struct Triangle* triangles = (struct Triangle*)malloc(sizeof(struct Triangle) * tr_arr_size);
 	
-	if (triangles == NULL) {
-	    return NULL;
-	}
+	if (triangles == NULL) return NULL;
 
-
-	triangles[0] = get_striangle(pt_count, sw, sh);
+	triangles[0] = get_super_triangle(pt_count, screen_width, screen_height);
 	for (int i = 0; i < 3; i++) points[pt_count + i] = triangles[0].vertices[i];
 	int tr_count = 1; 
 	
-
 	// populates poly_edges lookup array ahead of Edge-uniqueness check 
 	struct Edge null_edge = { -1, -1, 1 };
 	
@@ -37,7 +33,7 @@ struct Triangle* triangulate(int pt_count, int sw, int sh, struct Point* points,
 		// get all the "bad triangles" to define the polygon hole
 		for (int j = 0; j < tr_count; j++) {
 
-			if (circc_contains(points[pt_i], triangles[j].circumcircle)) {
+			if (circumcircle_contains(points[pt_i], triangles[j].circumcircle)) {
 				bad_tr[bad_tr_count++] = triangles[j];
 				remove_triangle(tr_count, triangles, j);
 				--j;
@@ -82,7 +78,6 @@ struct Triangle* triangulate(int pt_count, int sw, int sh, struct Point* points,
 			}
 
 		}
-		
 
 		// create new triangles out of the polygon and add them to triangles 
 		for (int i = 0; i < edges_arr_size; i++) {
@@ -102,7 +97,7 @@ struct Triangle* triangulate(int pt_count, int sw, int sh, struct Point* points,
 			struct Edge three = {next.vertices[2].id, next.vertices[0].id, 0};
 			next.edges[2] = three;
 
-			next.circumcircle = get_circc(next);
+			next.circumcircle = get_circumcircle(next);
 			triangles[tr_count++] = next;
 
 			if (tr_count / (float)tr_arr_size >= 0.9f) { 
@@ -110,7 +105,6 @@ struct Triangle* triangulate(int pt_count, int sw, int sh, struct Point* points,
 				tr_arr_size = tr_arr_size << 1;
 			}
 		}
-
 
 		// pre-allocate both bad_tr and poly_edges, and free alongside triangle 
 		free(poly_edges);

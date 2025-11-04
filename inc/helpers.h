@@ -1,7 +1,6 @@
 
 #pragma once 
 
-
 struct Point {
     float x;
     float y;
@@ -30,7 +29,6 @@ struct Triangle {
 };
 
 
-
 static inline int equal_edge(struct Edge one, struct Edge two) {
     if ((one.start == two.end || one.start == two.start)
 	&& (one.end == two.start || one.end == two.end)) return 1;
@@ -38,13 +36,13 @@ static inline int equal_edge(struct Edge one, struct Edge two) {
 }
 
 
-int circc_contains(struct Point pt, struct Circumcircle circc);
+int circumcircle_contains(struct Point pt, struct Circumcircle circc);
 
 
-struct Circumcircle get_circc(struct Triangle triangle);
+struct Circumcircle get_circumcircle(struct Triangle triangle);
 
 
-struct Triangle get_striangle(int pt_c, int sw, int sh);
+struct Triangle get_super_triangle(int pt_c, int sw, int sh);
 
 
 void remove_triangle(int arr_size, struct Triangle* t_arr, int at_index);

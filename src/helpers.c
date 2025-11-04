@@ -4,7 +4,7 @@
 #include <math.h>
 
 
-int circc_contains(struct Point pt, struct Circumcircle circc) {
+int circumcircle_contains(struct Point pt, struct Circumcircle circc) {
 
 	struct Point to_centre;
 	to_centre.x = pt.x - circc.centre_x;
@@ -17,7 +17,7 @@ int circc_contains(struct Point pt, struct Circumcircle circc) {
 }
 
 
-struct Circumcircle get_circc(struct Triangle triangle) {
+struct Circumcircle get_circumcircle(struct Triangle triangle) {
 
 	struct Circumcircle res;
 
@@ -45,7 +45,7 @@ struct Circumcircle get_circc(struct Triangle triangle) {
 }
 
 
-struct Triangle get_striangle(int pt_c, int sw, int sh) {
+struct Triangle get_super_triangle(int pt_c, int sw, int sh) {
 
     // a circle that encompasses the area on which the mesh is to be defined 
 	struct Point excircle_centre = {sw / 2.0f, sh / 2.0f};
@@ -79,7 +79,7 @@ struct Triangle get_striangle(int pt_c, int sw, int sh) {
 	struct Edge three = { triangle.vertices[2].id, triangle.vertices[0].id, 0 };
 	triangle.edges[2] = three;
 
-	triangle.circumcircle = get_circc(triangle);
+	triangle.circumcircle = get_circumcircle(triangle);
 
 	return triangle;
 }
