@@ -1,6 +1,6 @@
 CC=gcc
-CFLAGS:=-Iinc -Wall    
-LDFLAGS:=-lm 
+CFLAGS:=-Iinc -Wall $(shell python3-config --includes) -g
+LDFLAGS:=-lm $(shell python3-config --embed --ldflags)
 
 BUILD_DIR=build
 OBJ_DIR=$(BUILD_DIR)/obj
@@ -9,7 +9,7 @@ SRC:=$(wildcard $(SRC_DIR)/*.c)
 OBJ:=$(patsubst $(SRC_DIR)/%.c,$(OBJ_DIR)/%.o,$(SRC))
 
 
-TARGET=$(BUILD_DIR)/bw
+TARGET=$(BUILD_DIR)/path
 
 
 default: $(TARGET)

@@ -1,45 +1,32 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#include "helpers.h"
-#include "bw.h"
+#include "core.h"
+#include "rb.h"
+#include "py_interface.h"
 
-int main(int argc, char *argv[])
-{
+int main(int argc, char *argv[]) {
 
-    int tst_count = 101; 
-    struct Point* pts = (struct Point*)malloc(sizeof(struct Point) * (tst_count + 2));
+    int SCREEN_WIDTH = 500;
+    int SCREEN_HEIGHT = 500;
+    float NODE_SIZE = 250.0f;
+    const char* VENV = "/home/kubaby/venv";
 
-    FILE *file = fopen("bw-test", "r");
-    if (file == NULL) {
-        return 1;
-    }
+    python_start();
 
-    double x, y;  // Use double for general floating-point precision
+    // return start and end too
+    int start, end;
+    struct mesh* m = recursive_backtrack(SCREEN_WIDTH, SCREEN_HEIGHT, NODE_SIZE, &start, &end);
+    // check if null
+    // int path_len;
+    // int* path = astar(nodes, &path_len);
 
-    // Read until EOF (end of file)
-    int pt_count = 0;
-    while (fscanf(file, "%lf %lf", &x, &y) == 2) {
-        struct Point pt = {x, y, pt_count};
-        pts[pt_count] = pt;
-        pt_count++;
-    }
+    maze_program(m, NULL, 0);
 
-    fclose(file);
+    // if nav_mesh
+        // start interactive - build obstacle course, add nodes etc.
 
-    int triangle_count = 0;
-    struct Triangle* triangles = triangulate(pt_count, 900.0f, 900.0f, pts, &triangle_count);
-
-    FILE *outf = fopen("out", "w");
-    if (outf == NULL) {
-        return 1;
-    }
-
-    for (int i = 0; i < triangle_count; i++) {
-        fprintf(outf, "%i-%i-%i\n", triangles[i].vertices[0].id, triangles[i].vertices[1].id, triangles[i].vertices[2].id);
-    }
-
-    fclose(outf);
+    python_end();
 
     return 0;
 }
