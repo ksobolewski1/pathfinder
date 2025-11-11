@@ -7,7 +7,7 @@
 #include <stdlib.h>
 
 
-int cost(struct node* n1, struct node* n2) {
+int cost(struct node_data n1, struct node_data n2) {
 
     // return get_hcost(n1, end) + n1->gcost < get_hcost(n2, end) + n2->gcost
 
@@ -24,8 +24,6 @@ float get_hcost(struct node* n, struct node* end) {
 
 int* find_path(struct mesh* m, int start, int end, int* path_len) {
 
-    int* res = (int*)malloc(sizeof(int) * m->node_count);
-    int res_count = 0;
     struct binary_heap queue;
     queue.N = 0;
     queue.data = (struct node**)malloc(sizeof(struct node*) * m->node_count);
@@ -39,37 +37,54 @@ int* find_path(struct mesh* m, int start, int end, int* path_len) {
     }
 
     int found = 0;
+    float gcost = 0.0f;
+
+    struct node_data start_data;
+    start_data.id = m->nodes[start].id;
+    start_data.hcost = get_hcost(&m->nodes[start], &m->nodes[end]);
+    start_data.gcost = 0.0f;
+    start_data.parent = -1;
+    start_data.index = 0;
+
+    enqueue(&queue, start_data);
+    enqueued[start_data.id] = start_data.id;
+
+    struct node_data current;
     while(qsize(&queue) > 0) {
 
-        struct node* current = dequeue(&queue);
-        visited[current->id] = current->id;
+        current = dequeue(&queue);
+        struct node* current_node = &m->nodes[current.id];
+        visited[current.id] = current.id;
 
-        for (int i = 0; i < current->edge_count; i++) {
+        if (current.id == end) {
+            found = 1;
+            break;
+        }
 
-            int neighbour_id = current->edges[i];
+        for (int i = 0; i < current_node->edge_count; i++) {
+
+            int neighbour_id = current_node->edges[i];
 
             if (visited[neighbour_id] > -1) continue;
 
+            struct node* next = &m->nodes[neighbour_id];
+
             if (enqueued[neighbour_id] == -1) {
-                
-                struct node* next = &m->nodes[neighbour_id];
 
-                // add to path 
-                // set h cost - distance between next and destination
-                // set g cost - total cost so far - (current g cost + distance between current and next)
-                // set current as next parent // 
+                // set current as next parent 
                 struct node_data nd; 
+                nd.parent = current.id;
+                nd.id = neighbour_id;
                 nd.hcost = get_hcost(next, &m->nodes[end]);
-                //nd.gcost = 
+                nd.gcost = gcost + get_hcost(current_node, next);
+                nd.index = current.index + 1;
 
-                enqueue(&queue, next);
+                enqueue(&queue, nd);
                 enqueued[neighbour_id] = neighbour_id;
             }
-            else { 
-                
-                // if below, a batter path to this neighbour has been found (so we can shorten the path)
+            else { // a shorter path has been found to/through an already enqueued node
 
-                //if (current g cost + distance < enqueued[neighbour_id] g cost) {
+                //if (current.gcost + get_hcost(current_node, next) < [the g cost of the enqueued neighbour - requires to search for it in the queue]) {
                 // enqueued[neighbour_id] gcost = current g cost + distance between current and enqueued[neighbour_id]
                 // enqueued[neighbour_id] becomes parent of current
                 // }
@@ -80,9 +95,16 @@ int* find_path(struct mesh* m, int start, int end, int* path_len) {
         }
     }
 
-
+    int* res = NULL;
     if (found) {
+        
+        *path_len = current.index;
+        // count in the path
+        res = (int*)malloc(sizeof(int) * current.index);
+        
+        for (int i = 0; i < current.index; i++) {
 
+        }
         // reconstruct the path
     }
 
@@ -91,6 +113,5 @@ int* find_path(struct mesh* m, int start, int end, int* path_len) {
     free(enqueued);
     free(visited);
 
-    *path_len = res_count;
     return res;
 }
