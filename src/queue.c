@@ -6,23 +6,23 @@
 #include "core.h"
 
 
-static inline void swap(struct node_data* data, int i, int j) {
-    struct node_data temp = data[i];
+static inline void swap(void** data, int i, int j) {
+    void* temp = data[i];
     data[i] = data[j];
     data[j] = temp; 
 }
 
 
-void sift_up(struct binary_heap* q, const int N, int i) {
-    
-    if (i > N || i == 1) return;
+void sift_up(struct binary_heap* q, const int last, int i) {
+
+    if (i > last || i == 1) return;
 	
     int parent_index = i >> 1;
-    struct node_data n1 = q->data[parent_index];
-    struct node_data n2 = q->data[i]; 
+    void* d1 = q->data[parent_index];
+    void* d2 = q->data[i]; 
     
-    if (q->rating(n2, n1)) swap(q->data, parent_index, i);
-    sift_up(q, N, parent_index);    
+    if (q->rating(d2, d1)) swap(q->data, parent_index, i);
+    sift_up(q, last, parent_index);    
 }
 
 void sift_down(struct binary_heap* q, const int N, int i) {
@@ -30,9 +30,9 @@ void sift_down(struct binary_heap* q, const int N, int i) {
     int prev = i;
     int left_index = i << 1;
     int right_index = (i << 1) + 1; 
-    struct node_data current_node = q->data[i]; 
+    void* cd = q->data[i]; 
     
-    if (q->rating(current_node, q->data[left_index]))
+    if (q->rating(cd, q->data[left_index]))
 	prev = left_index;
     if (q->rating(q->data[right_index], q->data[prev]))
 	prev = right_index;
@@ -43,20 +43,20 @@ void sift_down(struct binary_heap* q, const int N, int i) {
     }
 }
 
-struct node_data dequeue(struct binary_heap* q) {
+void* dequeue(struct binary_heap* q) {
     int last = q->N - 1;
-    q->N--;
     swap(q->data, 1, last);
-    struct node_data n = q->data[last];
-    sift_down(q, q->N, 1);
-    return n;
+    void* d = q->data[last];
+    sift_down(q, last, 1);
+    q->N--;
+    return d;
 }
 
-void enqueue(struct binary_heap* q, struct node_data node) {
+void enqueue(struct binary_heap* q, void* d) {
     
-    int n = q->N;
-    q->data[q->N++] = node;
-    sift_up(q, n, n);
+    q->data[q->N] = d;
+    sift_up(q, q->N, q->N);
+    q->N++;
 }
 
 

@@ -7,7 +7,7 @@ int main(int argc, char *argv[]) {
 
     python_start();
 
-    maze_program();
+    maze_program("/home/ksobolewski/path/maze.py");
 
     python_end();
 

@@ -239,7 +239,9 @@ static PyObject* get_path(PyObject* self, PyObject* args) {
         n.edge_count = (int)PyList_Size(edges_list);
         n.edges = (int*)malloc(sizeof(int) * n.edge_count);
 
-        // copy the edges too
+        for (int j = 0; j < n.edge_count; j++) {
+            n.edges[j] = (int)PyLong_AsLong(PyList_GetItem(edges_list, j));
+        }
 
         PyObject* xval = PyObject_GetAttrString(node, "x");
         PyObject* yval = PyObject_GetAttrString(node, "y");
@@ -260,11 +262,13 @@ static PyObject* get_path(PyObject* self, PyObject* args) {
     Py_DECREF(nodes_list);
 
     int path_length = 0;
-    // int* path = find_path(&m, start, end, &path_length);
+    int* path = find_path(&m, start, end, &path_length);
+
     PyObject* res = PyList_New(path_length);
-    // for (int i = 0; i < path_length; i++) PyList_SetItem(res, i, PyLong_FromLong(path[i]));
+    for (int i = 0; i < path_length; i++) PyList_SetItem(res, i, PyLong_FromLong(path[i]));
 
     free(m.nodes);
+    free(path);
     
     return res;
 }
@@ -346,25 +350,24 @@ int python_end() {
 }
 
 
-int maze_program() {
+int maze_program(const char* script_path) {
 
-    // Open the Python script file
-    const char* scr_path = "/home/kubaby/work/path/maze.py";
-    FILE *fp = fopen(scr_path, "r");
+    // Open the Python maze.py script file
+    FILE *fp = fopen(script_path, "r");
     if (fp == NULL) {
         printf("Failed to open the maze script. Exit.");
         return 1;
     }
 
     // Run the Python script
-    PyRun_SimpleFile(fp, scr_path);
+    PyRun_SimpleFile(fp, script_path);
 
     fclose(fp);
 
     return 0;
 }
 
-int nav_mesh_program() {
+int nav_mesh_program(const char* script_path) {
 
     // run nav_mesh.py
 

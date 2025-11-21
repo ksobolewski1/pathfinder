@@ -3,7 +3,7 @@
 SCREEN_WIDTH = 500
 SCREEN_HEIGHT = 500
 NODE_SIZE = 250.0
-SITE_PACKAGES = '/home/kubaby/venv/lib/python3.11/site-packages'
+SITE_PACKAGES = '/home/ksobolewski/venv/lib/python3.12/site-packages'
 
 import sys; 
 

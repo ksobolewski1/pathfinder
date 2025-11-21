@@ -3,8 +3,8 @@
 # LOAD THE DATA FROM A CONFIG FILE
 SCREEN_WIDTH = 500
 SCREEN_HEIGHT = 500
-NODE_SIZE = 50.0
-SITE_PACKAGES = '/home/kubaby/venv/lib/python3.11/site-packages'
+NODE_SIZE = 25.0
+SITE_PACKAGES = '/home/ksobolewski/venv/lib/python3.12/site-packages'
 TIME_DELAY = 10
 
 import sys; 
@@ -28,9 +28,11 @@ def exit_check():
     return False
 
 
-def path_draw(drawn, path):
+def path_draw(drawn, nodes, path):
 
-    while(True):
+    plen = len(path)
+    len_it = 0
+    while plen > len_it:
 
         if exit_check():
             break
@@ -38,11 +40,14 @@ def path_draw(drawn, path):
         pygame.time.delay(TIME_DELAY)
         
         for n in drawn:
-            pygame.draw.rect(screen, (0, 255, 0), (n.x, n.y, NODE_SIZE, NODE_SIZE))  
-        for n in path:
-            pygame.draw.rect(screen, (0, 255, 0), (n.x, n.y, NODE_SIZE, NODE_SIZE))
+            pygame.draw.rect(screen, (255, 255, 255), (n.x, n.y, NODE_SIZE, NODE_SIZE))
+        for i in range(len_it):
+            pygame.draw.rect(screen, (0, 255, 0), (nodes[path[i]].x, nodes[path[i]].y, NODE_SIZE, NODE_SIZE))
+        for n in drawn:
+            draw_node_borders(n)
 
         pygame.display.flip()
+        len_it += 1
 
 
 def draw_node_borders(node):
@@ -85,10 +90,9 @@ def draw_node_borders(node):
 
 def stack_draw(visited, drawn, stack, nodes):
 
-    while (True):
+    while (len(stack) > 0):
 
-        if len(stack) > 0:
-            node = stack.pop()
+        node = stack.pop()
 
         pygame.time.delay(TIME_DELAY)
 
@@ -107,50 +111,56 @@ def stack_draw(visited, drawn, stack, nodes):
 
         pygame.display.flip()
 
-        if len(stack) > 0:
-            drawn.add(node)
-            visited.remove(node)
+        drawn.add(node)
+        visited.remove(node)
     
     return True
 
 
-def dfs_draw(visited, stack, nodes, node, start):
+def dfs_draw(visited, stack, nodes, start):
 
-    stack.append(node)
-    if node not in visited:
-        visited.add(node)
-    
-    if exit_check():
-        return False
-    
-    pygame.time.delay(TIME_DELAY)
+    draw_stack = [nodes[start]]
 
-    screen.fill((0, 0, 0))
+    while draw_stack:
+
+        node = draw_stack.pop()
+        stack.append(node)
+        if node not in visited:
+            visited.add(node)
         
-    for n in visited:
-        pygame.draw.rect(screen, (255, 255, 255), (n.x, n.y, NODE_SIZE, NODE_SIZE))  
+        if exit_check():
+            return False
         
-    pygame.draw.rect(screen, (255, 0, 0), (node.x, node.y, NODE_SIZE, NODE_SIZE))  
+        pygame.time.delay(TIME_DELAY)
 
-    pygame.display.flip()
-    
-    for neighbor_index in node.edges:
-        if nodes[neighbor_index] not in visited:
-            dfs_draw(visited, stack, nodes, nodes[neighbor_index], start)
+        screen.fill((0, 0, 0))
+            
+        for n in visited:
+            pygame.draw.rect(screen, (255, 255, 255), (n.x, n.y, NODE_SIZE, NODE_SIZE))  
+            
+        pygame.draw.rect(screen, (255, 0, 0), (node.x, node.y, NODE_SIZE, NODE_SIZE))  
+
+        pygame.display.flip()
+        
+        for neighbor_index in reversed(node.edges):
+            if nodes[neighbor_index] not in visited:
+                draw_stack.append(nodes[neighbor_index])
 
 
 def main():
 
     START = 0
+    END = 99
     maze = pathfinder.get_maze(SCREEN_WIDTH, SCREEN_HEIGHT, START, NODE_SIZE)
-    path = pathfinder.get_path(maze, START, 99)
+    path = pathfinder.get_path(maze, START, END)
 
     visited = set()
     drawn = set()
     stack = list()
 
-    dfs_draw(visited, stack, maze.nodes, maze.nodes[START], START)
+    dfs_draw(visited, stack, maze.nodes, START)
     stack_draw(visited, drawn, stack, maze.nodes)
+    path_draw(drawn, maze.nodes, path)
 
     pygame.quit()
 
